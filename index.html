@@ -372,17 +372,45 @@
         let userAnswers = {};
         let studiedQuestions = new Set();
 
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function shuffleOptions(question) {
+            const originalAnswer = question.ans;
+            const originalAnswerIndex = originalAnswer.charCodeAt(0) - 65;
+            const originalAnswerText = question.opts[originalAnswerIndex];
+            
+            const shuffledOpts = shuffleArray(question.opts);
+            const newAnswerIndex = shuffledOpts.indexOf(originalAnswerText);
+            const newAnswer = String.fromCharCode(65 + newAnswerIndex);
+            
+            return {
+                ...question,
+                opts: shuffledOpts,
+                ans: newAnswer,
+                originalAnswer: originalAnswer
+            };
+        }
+
         function loadQuestions() {
             currentQuestions = [];
             if (currentTest === 'all') {
                 for (let test in questions) {
                     questions[test].forEach((q, idx) => {
-                        currentQuestions.push({...q, test: test, originalIndex: idx});
+                        const shuffledQ = shuffleOptions(q);
+                        currentQuestions.push({...shuffledQ, test: test, originalIndex: idx});
                     });
                 }
             } else {
                 questions[currentTest].forEach((q, idx) => {
-                    currentQuestions.push({...q, test: currentTest, originalIndex: idx});
+                    const shuffledQ = shuffleOptions(q);
+                    currentQuestions.push({...shuffledQ, test: currentTest, originalIndex: idx});
                 });
             }
             updateStats();
