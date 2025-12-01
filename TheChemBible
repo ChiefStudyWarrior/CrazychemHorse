@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHS1440 Study Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .stats {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-item {
+            color: white;
+            font-size: 1.1em;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .btn-secondary {
+            background: rgba(255,255,255,0.3);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.4);
+        }
+        
+        select {
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            font-size: 1em;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .card:active {
+            transform: scale(0.98);
+        }
+        
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .question-text {
+            font-size: 1.2em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .option {
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .option:hover {
+            border-color: #667eea;
+            background: #f5f5ff;
+        }
+        
+        .option.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+        
+        .option.correct {
+            border-color: #4caf50;
+            background: #4caf50;
+            color: white;
+        }
+        
+        .option.incorrect {
+            border-color: #f44336;
+            background: #f44336;
+            color: white;
+        }
+        
+        .answer-section {
+            padding: 20px;
+            background: #f0f7ff;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .answer-section.hidden {
+            display: none;
+        }
+        
+        .answer-label {
+            font-weight: 600;
+            color: #4caf50;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        .progress-bar {
+            background: rgba(255,255,255,0.3);
+            height: 8px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: white;
+            height: 100%;
+            transition: width 0.3s;
+        }
+        
+        .flip-hint {
+            text-align: center;
+            color: #999;
+            font-style: italic;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>CHS1440 Study Guide</h1>
+            <p>Final Exam Prep - All Tests Combined</p>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-item">Questions: <span id="totalQuestions">0</span></div>
+            <div class="stat-item">Current: <span id="currentQuestion">0</span></div>
+            <div class="stat-item">Correct: <span id="correctCount">0</span></div>
+            <div class="stat-item">Studied: <span id="studiedCount">0</span></div>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        
+        <div class="controls">
+            <select id="testFilter">
+                <option value="all">All Tests</option>
+                <option value="1">Test 1 Only</option>
+                <option value="2">Test 2 Only</option>
+                <option value="3">Test 3 Only</option>
+                <option value="4">Test 4 Only</option>
+            </select>
+            <button class="btn btn-primary" onclick="shuffleQuestions()">Shuffle</button>
+            <button class="btn btn-secondary" onclick="toggleMode()">Toggle Mode: <span id="modeText">Flashcard</span></button>
+            <button class="btn btn-secondary" onclick="resetProgress()">Reset Progress</button>
+        </div>
+        
+        <div class="card" onclick="flipCard()">
+            <div>
+                <div class="question-header">
+                    <span id="questionNumber">Question 1</span>
+                    <span id="testLabel">Test 1</span>
+                </div>
+                <div class="question-text" id="questionText"></div>
+                <div class="options" id="optionsContainer"></div>
+                <div class="answer-section hidden" id="answerSection">
+                    <div class="answer-label">Correct Answer:</div>
+                    <div id="correctAnswer"></div>
+                </div>
+            </div>
+            <div class="flip-hint" id="flipHint">Click card to reveal answer</div>
+        </div>
+        
+        <div class="navigation">
+            <button class="btn btn-primary" onclick="previousQuestion()">← Previous</button>
+            <button class="btn btn-primary" onclick="nextQuestion()">Next →</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = {
+            1: [
+                {q: "Which of the following represent(s) a physical change?\n1. When the element reacts with water, a gas is formed.\n2. The metal rusts when exposed to atmospheric conditions.\n3. A substance has a density of 0.072 kg/m³.\n4. The substance condenses at 18°C.", opts: ["2 only", "1 only", "4 only", "3 and 4", "all 1, 2, 3 and 4"], ans: "C"},
+                {q: "The name of the compound is copper(II) chloride. This implies that", opts: ["copper is a main group metal", "copper is a nonmetal", "there are two copper ions in the compound", "the empirical formula has two elements and is written as CuCl", "the charge on the cation is 2+"], ans: "E"},
+                {q: "Select the only substance in its current state that is capable of metallic bonding?", opts: ["KBr", "Sn", "Cl₂", "H₂C₂O₄", "MgS"], ans: "B"},
+                {q: "Give the name of the following compound: N₂O₅", opts: ["pentanitrogen dioxide", "nitrogen oxide", "dinitrogen pentoxide", "nitric oxide", "nitrate"], ans: "C"},
+                {q: "Which of the following properties of a typical metal are chemical properties?\nI. It has a dull color II. It floats on water III. It forms a basic oxide IV. It is very shiny.", opts: ["I and II", "II and III", "III only", "I and IV", "all of I to IV"], ans: "C"},
+                {q: "Calculate the following to the correct number of significant figures.\n[(28.7 × 10⁵) ÷ 48.533] + 144.99", opts: ["1.18×10²", "1.18×10³", "5.93 × 10⁴", "6.46 × 10⁴", "5940"], ans: "C"},
+                {q: "The compound has a boiling point of −162°C. What is this temperature in Kelvin?", opts: ["223 K", "-12 K", "55 K", "111 K", "340 K"], ans: "D"},
+                {q: "Which of the following statements is/are correct?\n1. Electrons and protons have identical masses and charges.\n2. Most of an atom's mass is based on the negative electrons.\n3. All the atoms of an element have the same number of neutrons.", opts: ["1 only", "2 only", "1 and 3", "1, 2, 3 are incorrect", "1 and 2"], ans: "D"},
+                {q: "The dimensions of aluminum foil in a box for sale in supermarkets are 67 yards by 12 inches. The mass of the foil is 0.83 kg. If its density is 2.70 g/cm³, then what is the thickness of the foil in inches?", opts: ["0.0013 inches", "6.5×10⁻⁴ inches", "2.7×10⁻⁵ inches", "1.2×10⁻⁴ inches", "5.3×10⁻⁵ inches"], ans: "B"},
+                {q: "The group 17 (or group 7A) elements are commonly known as the family of", opts: ["halogens", "alkali metals", "noble gases", "transition metals", "alkaline earth metals"], ans: "A"},
+                {q: "Which of the following is an example of an insoluble compound?", opts: ["CaCl₂", "Na₂CO₃", "Ni(OH)₂", "LiCN", "KNO₃"], ans: "C"},
+                {q: "Select the correct ions that make up barium phosphate.", opts: ["Ba³⁺ and PO₄⁻", "Ba²⁺ and PO₄³⁻", "Ba²⁺ and P³⁻", "Ba⁺ and PO₃²⁻", "Ba⁺ and POCl₃⁻"], ans: "B"},
+                {q: "How many significant figures are in the following reported number: 312,000 mg?", opts: ["6", "4", "3", "1", "unlimited"], ans: "C"},
+                {q: "An element consists of two isotopes. The abundance of one isotope is 60.40% and its atomic mass is 68.9257 u. The atomic mass of the second isotope is 70.9249 u. What is the average atomic mass of the element?", opts: ["69.72 u", "69.93 u", "70.13 u", "139.9 u", "68.99 u"], ans: "A"},
+                {q: "What is the formula of the precipitate formed when aqueous silver nitrate reacts with aqueous potassium chloride?", opts: ["KNO₃", "KNO", "KCl", "AgCl", "AgK"], ans: "D"},
+                {q: "Calculate the following to the correct number of significant figures.\nx = 0.0034 + √[0.0034² - 4(1.000)(6.3×10⁻⁴)] / 2(1.000)", opts: ["3.70", "0.0085", "0.0044", "0.029", "0.070"], ans: "D"},
+                {q: "The cations from the alkali metals have a charge of what?", opts: ["1+", "2+", "3+", "1-", "0"], ans: "A"},
+                {q: "When the equation below is balanced using the smallest coefficients, what is the coefficient for O₂?\nKO₂ + CO₂ + H₂O → KHCO₃ + O₂", opts: ["3", "4", "2", "5", "1"], ans: "A"},
+                {q: "What is the chemical formula of a given compound? (structure question)", opts: ["C₁₅H₈Cl₄", "C₁₀H₇Cl₅", "C₁₄H₉Cl₅", "C₁₁H₁₂Cl₄", "C₁₂H₁₄Cl₅"], ans: "C"},
+                {q: "Which of the following is most likely an empirical formula for C₆H₁₂O₆?", opts: ["C₄H₈O₄", "CH₂O", "C₆H₆O", "CHO", "C₂H₂O₂"], ans: "B"},
+                {q: "The correct formula for magnesium bromide is:", opts: ["MnBr", "MgBr₂", "MgB", "MnBr₂", "Mg₂Br"], ans: "B"}
+            ],
+            2: [
+                {q: "Which of these electron transitions between energy levels corresponds to the highest frequency? The subscripts represent n, the principal quantum number.", opts: ["E₆ to E₂", "E₅ to E₂", "E₄ to E₂", "E₃ to E₂", "E₂ to E₃"], ans: "A"},
+                {q: "Select the acid below that is classified as a strong electrolyte in aqueous solution.", opts: ["H₃PO₃", "HOClO₃", "CH₃CO₂H", "HOCl", "KHSO₄"], ans: "B"},
+                {q: "A company needs to dispose of 2.74×10³ gallons of waste sulfuric acid having a concentration of 1.53 M. Before disposal, the acid must be neutralized with slaked lime, Ca(OH)₂(s). If the slaked lime costs 52 cents per pound, how much will it cost to neutralize the waste sulfuric acid?", opts: ["$2400", "$1800", "$550", "$9200", "$1300"], ans: "E"},
+                {q: "What type of orbital is designated by n = 5, l = 1, mₗ = -4", opts: ["4s", "3p", "5d", "none", "5s"], ans: "D"},
+                {q: "Combustion of C₂H₃Cl(liq) yields carbon dioxide, steam, and hydrogen chloride gas. If 55.00 g of C₂H₃Cl(liq) react, how many moles of HCl are formed?", opts: ["4.001 mol", "0.3251 mol", "1.146 mol", "0.8801 mol", "0.6910 mol"], ans: "D"},
+                {q: "All of the following sets of quantum numbers are allowed except which one.", opts: ["n = 4, l = 5, mₗ = +5", "n = 5, l = 4, mₗ = 0", "n = 4, l = 1, mₗ = -1", "n = 3, l = 2, mₗ = +2", "n = 1, l = 0, mₗ = 0"], ans: "A"},
+                {q: "What are the spectator ions in the reaction between aqueous potassium hydroxide and aqueous perchloric acid, HClO₄?", opts: ["H⁺ and K⁺", "H⁺ and OH⁻", "K⁺ and Cl⁻", "K⁺ and ClO₄⁻", "OH⁻ only"], ans: "D"},
+                {q: "The electron affinity of O would be the energy change required to induce which reaction involving O?", opts: ["O⁺(g) + e⁻ → O²⁺(g)", "O(g) + e⁻ → O⁻(g)", "O⁻(g) → O²⁻(g) + e⁻", "O(g) → O⁺(g) + e⁻", "O²⁻(g) + e⁻ → O⁻(g)"], ans: "B"},
+                {q: "According to the following balanced equation, how many moles of KOH are formed if 4 mol of H₂O react with 8 mol KO?\n4 KO(s) + 2 H₂O(l) → 4 KOH(s) + O₂(g)", opts: ["4", "8", "2", "1", "16"], ans: "B"},
+                {q: "Give the number of core electrons for Se.", opts: ["26", "30", "28", "32", "34"], ans: "C"},
+                {q: "Select the wavelength of electromagnetic radiation that corresponds to the greatest frequency.", opts: ["violet, 434 nm", "red, 656 nm", "blue-green, 486 nm", "green, 534 nm", "yellow, 589 nm"], ans: "A"},
+                {q: "Give the ground state electron configuration for As.", opts: ["[Ar]4s²3d¹⁰4p³", "[Ar]4s²4d¹⁰4p³", "[Ar]4s²3d¹⁰4p⁶", "[Ar]4s²3d¹⁰", "[Ar]3d¹⁰4p⁵"], ans: "A"},
+                {q: "A compound is 52.14% C, 13.13% H, and 34.73% O by mass. What is the empirical formula of the compound?", opts: ["C₂H₈O₃", "C₂H₆O", "C₄H₆O₃", "C₃HO₆", "C₅H₅O₂"], ans: "B"},
+                {q: "How many hydrogen atoms are present in 214 g of mannose, C₆H₁₂O₆?", opts: ["8.58×10²⁴ H atoms", "1.33×10²¹ H atoms", "2.14×10²² H atoms", "5.16×10²³ H atoms", "4.20×10²⁴ H atoms"], ans: "A"},
+                {q: "Select the set arranged in order of decreasing first ionization energy, IE.", opts: ["Cs > Mg > Ar", "Mg > Ar > Cs", "Ar > Mg > Cs", "Cs > Ar > Mg", "Mg > Cs > Ar"], ans: "C"},
+                {q: "The reaction shown has an actual yield of 35.8 g of S. When the reaction is carried out with 37.2 g of the CS₂ and 23.1 g the H₂S, what is the percent yield for the reaction?\nCS₂ + 2 H₂S → CH₄ + 4 S", opts: ["57.1%", "43.9%", "122%", "82.4%", "91.6%"], ans: "D"},
+                {q: "Of the following, which atom has the largest atomic radius?", opts: ["O", "Ne", "Na", "F", "N"], ans: "C"},
+                {q: "A student dilutes a certain volume of 6.0 M HCl to 8.0 L to get a 1.5 M solution of HCl. What volume of the 6.0 M HCl was diluted?", opts: ["2.0 L", "3.0 L", "1.5 L", "1.0 L", "30. L"], ans: "A"},
+                {q: "Potassium iodide reacts with lead(II) nitrate in the following reaction:\n2 KI(aq) + Pb(NO₃)₂(aq) → 2 KNO₃(aq) + PbI₂(s)\nWhat is the volume of 0.200 M potassium iodide solution required to react with 155.0 mL of a 0.112 M lead(II) nitrate solution?", opts: ["348 mL", "86.8 mL", "174 mL", "43.4 mL", "121 mL"], ans: "C"},
+                {q: "A germanium atom has how many valence electrons?", opts: ["ns³np³", "ns²np³", "ns²np²", "ns³np²", "ns²np⁴"], ans: "C"},
+                {q: "Which of the following represent(s) d-orbitals?", opts: ["(I) only", "(II) only", "(III) only", "(IV) only", "(I) and (IV)"], ans: "E"}
+            ],
+            3: [
+                {q: "An experiment is being carried out to test the removal of sulfur dioxide from gases being released by a power plant. The initial sample, which contains only CO₂ and SO₂, occupies a volume of 35 L at a temperature of 41°C and a pressure of 715 torr. After all of the SO₂ has been removed, the sample occupies a volume of 23.5 L at a temperature of 29°C and a pressure of 715 torr. Determine the partial pressure of SO₂ in the initial sample.", opts: ["715 torr", "550 torr", "370 torr", "29 torr", "220 torr"], ans: "E"},
+                {q: "A tightly sealed 5.0-L flask contains 781 mm Hg of Ar at 19°C. The flask is heated until the pressure is doubled. What is the temperature of the gas?", opts: ["-127°C", "38°C", "95°C", "149°C", "311°C"], ans: "E"},
+                {q: "Which of the following is/are postulates of the kinetic-molecular theory of gases?\n1. Collisions between gas particles cause a loss in kinetic energy.\n2. Gas particles are in constant, random motion.\n3. The kinetic energy of a gas molecule is inversely proportional to its temperature.", opts: ["1 only", "2 only", "3 only", "1 and 2", "all of 1, 2 and 3"], ans: "B"},
+                {q: "Dipole-dipole forces are absent in which of the following molecules?\nI. CH₂F₂  II. S₂  III. CO", opts: ["I only", "II only", "III only", "all I to III", "II and III"], ans: "B"},
+                {q: "How many electrons, per manganese atom, are delocalized in the sea of electrons model?", opts: ["12", "9", "7", "5", "2"], ans: "C"},
+                {q: "Which is not consistent with the acetate ion, CH₃CO₂⁻?", opts: ["it has six sigma bonds", "It has two resonance structures", "the geometry at the left C is tetrahedral", "it has two pi bonds", "the angle at the left C is about 109°"], ans: "D"},
+                {q: "Which one of the following is expected to form intermolecular hydrogen bonds in the liquid state?", opts: ["(structure a)", "(structure b)", "(structure c)", "(structure d)", "(structure e)"], ans: "C"},
+                {q: "The predicted bond angle at the C bonded to the two O atoms is...", opts: ["exactly 180°", "109.5°", "60°", "90°", "about 120°"], ans: "E"},
+                {q: "The heat of vaporization of benzene, C₆H₆, is 30.8 kJ/mol at its boiling point of 80.1°C. How much heat is required to vaporize 128 g benzene at its boiling point?", opts: ["4.04 kJ", "18.8 kJ", "19.3 kJ", "50.5 kJ", "4.04×10³ kJ"], ans: "D"},
+                {q: "What is the ground state electron configuration for the Cr³⁺ ion?", opts: ["[Ar]3d³", "[Ar]4s¹3d²", "[Ar]3d⁴", "[Ar]4s²3d²", "[Ar]3d⁵"], ans: "A"},
+                {q: "Choose the substance that corresponds to a p-type semiconductor.", opts: ["Ge doped with As", "Sb doped with Sn", "Si doped with As", "Ge doped with P", "Si doped with P"], ans: "B"},
+                {q: "Choose the reaction that illustrates ΔH°f for LiHSO₄.", opts: ["Li(s) + H₂(g) + S(s) + 2 O₂(g) → LiHSO₄(s)", "Li⁺(aq) + HSO₄⁻(aq) → LiHSO₄(s)", "Li⁺(aq) + H₂O(l) + SO₂(g) → LiHSO₄(s)", "Li(s) + ½ H₂(g) + S(s) + 2 O₂(g) → LiHSO₄(s)", "Li(s) + 2 H(g) + S(s) + 4 O(g) → LiHSO₄(s)"], ans: "D"},
+                {q: "Which gas is most likely to have the largest a and b values according to the van der Waals equation, and best represents a nonideal gas?", opts: ["All share identical a and b values", "SO₃", "CH₄", "BH₃", "N₂"], ans: "B"},
+                {q: "A 5.00-g sample of liquid water at 25.0°C is heated by the addition of 84.0 J of energy. The final temperature of the water is ___°C. The specific heat capacity of liquid water is 4.18 J/g°C", opts: ["95.2", "25.2", "-21.0", "4.02", "29.0"], ans: "E"},
+                {q: "A device is using a 19-mg sample of silicon that is doped with 1.5×10⁻⁵ % (by mass) phosphorous. How many phosphorous atoms were added to the sample?", opts: ["2.7×10¹⁴ P atoms", "1.2×10¹⁴ P atoms", "5.5×10¹³ P atoms", "9.3×10¹³ P atoms", "3.1×10¹³ P atoms"], ans: "C"},
+                {q: "Calculate ΔE for the system in which 16 J of work is done on a gas by the surroundings and the gas absorbs 51 J of heat?", opts: ["-67 J", "-35 J", "+35 J", "+51 J", "+67 J"], ans: "E"},
+                {q: "Hydrogen sulfide is present in many oil products, including natural gas. In a laboratory, when 37.6 g of S is formed from this reaction below, what volume of SO₂ at 1.06 atm and 23.5°C is needed to react with the hydrogen sulfide?\n2 H₂S(g) + SO₂(g) → 3 S(s) + 2 H₂O(g)", opts: ["2.40 L", "12.5 L", "3.75 L", "25.0 L", "8.98 L"], ans: "E"},
+                {q: "Select the substance with the highest vapor pressure at a fixed temperature.", opts: ["Ca(OH)₂", "CCl₄", "C₂H₂", "H₂O", "CH₃CH₂OH"], ans: "C"},
+                {q: "In relation to the ions in ionic bonding, select the compound predicted to have the largest lattice energy.", opts: ["LiF", "FeN", "CaO", "MgO", "CsI"], ans: "B"},
+                {q: "Which gas has the highest average velocity, and effusion and diffusion rates?", opts: ["CF₄", "SO₃", "Xe", "N₂", "Ar"], ans: "D"},
+                {q: "The thermochemical equation for the combustion of hexane is shown below.\nC₆H₁₄(g) + 19/2 O₂(g) → 6 CO₂(g) + 7 H₂O(g) ΔH° = -4163 kJ\nWhat is the enthalpy change for the combustion of 2.50 g C₆H₁₄?", opts: ["-121 kJ", "-1.66×10³ kJ", "-1.04×10⁴ kJ", "-1.43×10⁵ kJ", "-3.59×10⁵ kJ"], ans: "A"},
+                {q: "Determine the heat of vaporization of titanium(IV) chloride given the enthalpies of reaction below.\nTi(s) + 2 Cl₂(g) → TiCl₄(l) ΔH = -804.2 kJ\nTi(s) + 2 Cl₂(g) → TiCl₄(g) ΔH = -763.2 kJ", opts: ["-1567.4 kJ", "-82.0 kJ", "+1.054 kJ", "+1567.4 kJ", "+41.0 kJ"], ans: "E"}
+            ],
+            4: [
+                {q: "Identify the species oxidized.\n2 Al³⁺(aq) + 2 Fe(s) → 2 Al(s) + 3 Fe²⁺(aq)", opts: ["Al³⁺(aq)", "Fe(s)", "Al(s)", "Fe²⁺(aq)", "H₂O"], ans: "B"},
+                {q: "At what temperatures will a reaction be spontaneous if ΔH = +158 kJ and ΔS = +411 J/K?", opts: ["All temperatures below 384 K", "Only temperatures between 158 K and 378 K", "All temperatures above 384 K", "The reaction will be spontaneous at any temperature", "The reaction will never be spontaneous"], ans: "C"},
+                {q: "Which of the following statements is/are correct?\n1. For gas phase equilibria, the partial pressures of reactants and products are equal.\n2. For a chemical system at equilibrium, the forward and reverse rates of reaction are equal.\n3. For an aqueous chemical system at equilibrium, the concentrations of products divided by the concentrations of reactants equals one.", opts: ["1 only", "2 only", "3 only", "1 and 2", "1, 2, and 3"], ans: "B"},
+                {q: "If these hydrocarbons are in the gaseous state, rank them in terms of decreasing standard molar entropy, S°: C₂H₆, C₁₀H₂₂, CH₄, C₇H₁₆, C₂₂H₄₆", opts: ["C₂H₆, C₁₀H₂₂, CH₄, C₇H₁₆, C₂₂H₄₆", "C₂H₆, CH₄, C₇H₁₆, C₁₀H₂₂, C₂₂H₄₆", "C₂₂H₄₆, C₁₀H₂₂, C₂H₆, CH₄, C₇H₁₆", "C₂₂H₄₆, C₁₀H₂₂, C₇H₁₆, C₂H₆, CH₄", "CH₄, C₂H₆, C₇H₁₆, C₁₀H₂₂, C₂₂H₄₆"], ans: "D"},
+                {q: "Given the following balanced equation, if the rate of disappearance of Cl₂ is 4.84×10⁻² M/s, what is the rate of formation of the product?\n2 NO(g) + Cl₂(g) → 2 NOCl(g)", opts: ["4.84×10⁻² M/s", "2.42×10⁻² M/s", "1.21×10⁻¹ M/s", "9.68×10⁻² M/s", "3.50×10⁻² M/s"], ans: "D"},
+                {q: "The first-order decomposition of N₂O₅ at 328 K has a rate constant of 1.70×10⁻³ s⁻¹. If the initial concentration of N₂O₅ is 2.88 M, what is the concentration of N₂O₅ after 25.2 minutes?", opts: ["0.333 M", "0.220 M", "1.75 M", "0.889 M", "0.0267 M"], ans: "B"},
+                {q: "Which of the following shows a decrease in entropy?", opts: ["2 HNO₃(l) + NO(g) → 3 NO₂(g) + H₂O(l)", "FeCl₂(s) + H₂(g) → Fe(s) + 2HCl(g)", "2H₂O(g) → 2H₂(g) + O₂(g)", "2N₂(g) + O₂(g) → 2N₂O(g)", "CH₃OH(l) → 2H₂(g) + CO₂(g)"], ans: "D"},
+                {q: "Given the data for the reaction A + B → C, determine the order of the reaction with respect to each reactant.\n[A]=0.10, [B]=0.20, Rate=6.80×10⁻⁵\n[A]=0.10, [B]=0.40, Rate=2.72×10⁻⁴\n[A]=0.20, [B]=0.40, Rate=5.44×10⁻⁴", opts: ["The reaction is first-order with respect to A and first-order with respect to B", "The reaction is first-order with respect to A and second-order with respect to B", "The reaction is second-order with respect to A and first-order with respect to B", "The reaction is fourth-order with respect to A and first-order with respect to B", "zero order with respect to A and one-half order with respect to B"], ans: "B"},
+                {q: "Write the expression for Kₚ for the reaction below.\n2 HBr(g) ⇌ H₂(g) + Br₂(l)", opts: ["Kₚ = (P_H₂ × P_Br₂) / P²_HBr", "Kₚ = P_H₂ / P²_HBr", "Kₚ = 1 / P²_HBr", "Kₚ = P²_HBr / P_H₂", "Kₚ = (P_H₂ × P_Br₂) / P²_HBr"], ans: "B"},
+                {q: "When the half-equation is balanced correctly using the smallest coefficients, how many electrons, and on which side, are needed to balance the following half-reaction?\nBr₂(l) → Br⁻(aq)", opts: ["three electrons on the reactant side", "three electrons on the product side", "one electron on the product side", "two electrons on the reactant side", "two electrons on the product side"], ans: "D"},
+                {q: "Use the standard half-cell potentials listed below to calculate the standard cell potential for the following reaction: Mg(s) + Cu²⁺(aq) → Cu(s) + Mg²⁺(aq) occurring in an electrochemical cell at 25°C.\nMg²⁺(aq) + 2e⁻ → Mg(s) E° = -2.38 V\nCu²⁺(aq) + 2e⁻ → Cu(s) E° = +0.34 V", opts: ["+2.04 V", "-2.04 V", "+2.72 V", "-1.36 V", "+1.36 V"], ans: "C"},
+                {q: "At a given temperature, an equilibrium mixture contains the following concentrations of gases: [SO₃] = 0.054 M, [SO₂] = 0.0047 M, and [O₂] = 0.58 M. What is the equilibrium constant, Kc, for the reaction below?\n2 SO₃(g) ⇌ 2 SO₂(g) + O₂(g)", opts: ["4.4×10⁻³", "5.0×10⁻²", "11", "2.0×10²", "2.3×10²"], ans: "A"},
+                {q: "Calculate the ΔG°rxn using the following information.\n2 H₂S(g) + 3 O₂(g) → 2 SO₂(g) + 2 H₂O(g)\nΔG°f (kJ/mol): H₂S=-33.4, SO₂=-300.1, H₂O=-228.6", opts: ["+1908 kJ", "+562.1 kJ", "-1124 kJ", "+72.0 kJ", "-990.6 kJ"], ans: "E"},
+                {q: "Dinitrogen tetroxide partially decomposes according to the following equilibrium:\nN₂O₄(g) ⇌ 2 NO₂(g)\nA 1.000-L flask is charged with 4.00×10⁻² mol of N₂O₄. At equilibrium, 3.25×10⁻² mol of N₂O₄ remains. Calculate KC for the reaction.", opts: ["0.995", "0.459", "0.212", "6.94×10⁻³", "3.00×10⁻⁴"], ans: "D"},
+                {q: "Select the substance that has ΔH°f and ΔG°f that is equal to zero (0).", opts: ["Na(l)", "O₃(g)", "CO₂(g)", "CuCl(s)", "N₂(g)"], ans: "E"},
+                {q: "If the standard cell potential for a redox reaction is +0.56 V, and the number of electrons transferred is 6, calculate ΔG° for the redox reaction.", opts: ["-324 kJ", "-54.0 kJ", "-1108 kJ", "+88.6 kJ", "+477 kJ"], ans: "A"},
+                {q: "For which one of the following reactions does Kₚ equal Kc?", opts: ["2 SO₂(g) + O₂(g) ⇌ 2 SO₃(g)", "2 O₃(g) ⇌ 3 O₂(g)", "2 Ag₂O(s) ⇌ 4 Ag(s) + O₂(g)", "2 NH₃(g) ⇌ 3 H₂(g) + N₂(g)", "CO(g) + NO₂(g) ⇌ NO(g) + CO₂(g)"], ans: "E"},
+                {q: "By what factor does the rate of the reaction change when the concentration of each reactant is doubled, if it proceeds via the following rate law below?\nNO(g) + H₂(g) → N(g) + H₂O(g)\nrate = k[NO]²[H₂]", opts: ["1", "3", "6", "8", "4"], ans: "D"},
+                {q: "A possible reaction for the degradation of the pesticide DDT to a less harmful compound was simulated in the laboratory. The reaction was found to be first-order, with k = 4.0×10⁻⁸ s⁻¹ at 25°C. What is the half-life for the degradation of DDT in this experiment, in years?", opts: ["6.0 yr", "0.18 yr", "2.4 yr", "3.6 yr", "0.55 yr"], ans: "E"},
+                {q: "In the reaction below, the standard cell potential, E°cell = 0.14 V, [Sn²⁺] = 1.0 M, the [H⁺] = 1.0×10⁻⁵ M, while the partial pressure of H₂ = 1.00 atm. Use the Nernst equation to determine Ecell at 298 K.\nSn(s) + 2 H⁺(aq) → Sn²⁺(aq) + H₂(g)", opts: ["-0.49 V", "2.12 V", "-0.16 V", "0.44 V", "0.30 V"], ans: "C"},
+                {q: "If ΔG° < 0 for a reaction at all temperatures, then ΔH° is ________ and ΔS° is ________.", opts: ["negative, positive", "positive, negative", "negative, negative", "positive, positive", "positive, either positive or negative"], ans: "A"},
+                {q: "In the first 15.0 s of the reaction, 0.015 mol of C is produced in a reaction vessel with a volume of 0.50 L. What is the rate of this reaction in this time interval?\n2A → 2B + C", opts: ["5.0×10⁻⁴ M/s", "3.5×10⁻³ M/s", "1.0×10⁻² M/s", "2.0×10⁻³ M/s", "1.5×10⁻⁵ M/s"], ans: "D"}
+            ]
+        };
+
+        let currentTest = 'all';
+        let currentIndex = 0;
+        let currentQuestions = [];
+        let showingAnswer = false;
+        let mode = 'flashcard'; // 'flashcard' or 'quiz'
+        let userAnswers = {};
+        let studiedQuestions = new Set();
+
+        function loadQuestions() {
+            currentQuestions = [];
+            if (currentTest === 'all') {
+                for (let test in questions) {
+                    questions[test].forEach((q, idx) => {
+                        currentQuestions.push({...q, test: test, originalIndex: idx});
+                    });
+                }
+            } else {
+                questions[currentTest].forEach((q, idx) => {
+                    currentQuestions.push({...q, test: currentTest, originalIndex: idx});
+                });
+            }
+            updateStats();
+        }
+
+        function displayQuestion() {
+            if (currentQuestions.length === 0) return;
+            
+            const q = currentQuestions[currentIndex];
+            showingAnswer = false;
+            
+            document.getElementById('questionNumber').textContent = `Question ${currentIndex + 1}`;
+            document.getElementById('testLabel').textContent = `Test ${q.test}`;
+            document.getElementById('questionText').textContent = q.q;
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            const answerSection = document.getElementById('answerSection');
+            const flipHint = document.getElementById('flipHint');
+            const questionKey = `${q.test}-${q.originalIndex}`;
+            const hasAnswered = userAnswers[questionKey] !== undefined;
+            
+            if (mode === 'flashcard') {
+                optionsContainer.innerHTML = '';
+                answerSection.classList.add('hidden');
+                flipHint.style.display = 'block';
+            } else {
+                flipHint.style.display = 'none';
+                optionsContainer.innerHTML = '';
+                q.opts.forEach((opt, idx) => {
+                    const letter = String.fromCharCode(65 + idx);
+                    const div = document.createElement('div');
+                    div.className = 'option';
+                    div.textContent = `${letter}) ${opt}`;
+                    div.onclick = (e) => {
+                        e.stopPropagation();
+                        selectOption(letter);
+                    };
+                    
+                    if (hasAnswered) {
+                        if (userAnswers[questionKey] === letter) {
+                            if (letter === q.ans) {
+                                div.classList.add('correct');
+                            } else {
+                                div.classList.add('incorrect');
+                            }
+                        } else if (letter === q.ans) {
+                            div.classList.add('correct');
+                        }
+                    }
+                    
+                    optionsContainer.appendChild(div);
+                });
+                
+                if (hasAnswered) {
+                    answerSection.classList.remove('hidden');
+                    document.getElementById('correctAnswer').textContent = `${q.ans}) ${q.opts[q.ans.charCodeAt(0) - 65]}`;
+                } else {
+                    answerSection.classList.add('hidden');
+                }
+            }
+            
+            updateProgress();
+        }
+
+        function selectOption(letter) {
+            const q = currentQuestions[currentIndex];
+            const questionKey = `${q.test}-${q.originalIndex}`;
+            userAnswers[questionKey] = letter;
+            studiedQuestions.add(questionKey);
+            displayQuestion();
+            updateStats();
+        }
+
+        function flipCard() {
+            if (mode !== 'flashcard') return;
+            
+            const answerSection = document.getElementById('answerSection');
+            const flipHint = document.getElementById('flipHint');
+            const q = currentQuestions[currentIndex];
+            
+            if (!showingAnswer) {
+                answerSection.classList.remove('hidden');
+                document.getElementById('correctAnswer').textContent = `${q.ans}) ${q.opts[q.ans.charCodeAt(0) - 65]}`;
+                flipHint.textContent = 'Click card to hide answer';
+                showingAnswer = true;
+                
+                const questionKey = `${q.test}-${q.originalIndex}`;
+                studiedQuestions.add(questionKey);
+                updateStats();
+            } else {
+                answerSection.classList.add('hidden');
+                flipHint.textContent = 'Click card to reveal answer';
+                showingAnswer = false;
+            }
+        }
+
+        function nextQuestion() {
+            if (currentIndex < currentQuestions.length - 1) {
+                currentIndex++;
+                displayQuestion();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                displayQuestion();
+            }
+        }
+
+        function shuffleQuestions() {
+            for (let i = currentQuestions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [currentQuestions[i], currentQuestions[j]] = [currentQuestions[j], currentQuestions[i]];
+            }
+            currentIndex = 0;
+            displayQuestion();
+        }
+
+        function toggleMode() {
+            mode = mode === 'flashcard' ? 'quiz' : 'flashcard';
+            document.getElementById('modeText').textContent = mode === 'flashcard' ? 'Flashcard' : 'Quiz';
+            displayQuestion();
+        }
+
+        function resetProgress() {
+            if (confirm('Are you sure you want to reset all progress?')) {
+                userAnswers = {};
+                studiedQuestions = new Set();
+                updateStats();
+                displayQuestion();
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('totalQuestions').textContent = currentQuestions.length;
+            document.getElementById('currentQuestion').textContent = currentIndex + 1;
+            
+            let correctCount = 0;
+            for (let key in userAnswers) {
+                const [test, idx] = key.split('-');
+                if (questions[test] && questions[test][idx] && userAnswers[key] === questions[test][idx].ans) {
+                    correctCount++;
+                }
+            }
+            
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('studiedCount').textContent = studiedQuestions.size;
+        }
+
+        function updateProgress() {
+            const progress = ((currentIndex + 1) / currentQuestions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        document.getElementById('testFilter').addEventListener('change', function() {
+            currentTest = this.value;
+            currentIndex = 0;
+            loadQuestions();
+            displayQuestion();
+        });
+
+        // Initialize
+        loadQuestions();
+        displayQuestion();
+    </script>
+</body>
+</html>
